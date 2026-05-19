@@ -6,6 +6,17 @@
 #include <fstream>
 #include <vector>
 
+// to check if the file name has .pd
+bool pdExtension(const std::string& filename)
+{
+    if(filename.size() < 3) 
+    {
+        return false;
+    }
+    return filename.substr(filename.size() -3 ) == ".pd";
+}
+
+
 int main(int argc, char **argv)
 {
     lexer Lexer;
@@ -14,11 +25,19 @@ int main(int argc, char **argv)
 
     if (argc < 2)
     {
-        std::cerr << "Usage: " << argv[0] << " <filename>\n";
+        std::cerr << "Usage: " << argv[0] << " <filename>.pd\n";
         return 1;
     }
 
     std::ifstream file(argv[1]);
+
+    std::string filename = argv[1];
+
+    if(!pdExtension(filename))
+    {
+        std::cerr << "Error! .pd files are only supported" << "\n";
+        return 1;
+    }
 
     if (!file.is_open())
     {
