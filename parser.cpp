@@ -15,14 +15,18 @@ NODE parser::parsecall(std::vector<Token> &tokens, int &i)
         return call;
     }
 
+    // Only treat IDENT as a call if it's followed by '('.
+    // Otherwise, don't consume anything so the caller can decide what to do.
+    if (i + 1 >= static_cast<int>(tokens.size()) || tokens[i + 1].type != TOKENTYPE::LPAREN)
+    {
+        return call;
+    }
+
     // calling name
     call.value = tokens[i++].value;
 
-    // skiping LPAREN if it was present
-    if (i < static_cast<int>(tokens.size()) && tokens[i].type == TOKENTYPE::LPAREN)
-    {
-        i++;
-    }
+    // skip LPAREN
+    i++;
 
     // parse the  arguments
 
@@ -68,6 +72,11 @@ NODE parser::parseprint(std::vector<Token> &tokens, int &i)
     NODE node;
     node.nodetype = NODETYPE::PRINT_STATEMENT;
 
+    if (i >= static_cast<int>(tokens.size()))
+    {
+        return node;
+    }
+
     if (tokens[i].type != TOKENTYPE::PRINT)
     {
         return node;
@@ -77,7 +86,12 @@ NODE parser::parseprint(std::vector<Token> &tokens, int &i)
     i++;
 
     // skiping lparen
-    if (i < static_cast<int>(tokens.size()) && tokens[i].type == TOKENTYPE::LPAREN)
+    if (i >= static_cast<int>(tokens.size()) || tokens[i].type != TOKENTYPE::LPAREN)
+    {
+        std::cerr << "Error! Expected '(' " << "\n";
+        return node;
+    }
+    else
     {
         i++;
     }

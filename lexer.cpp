@@ -74,8 +74,16 @@ Token lexer::getnextToken(std::ifstream &file)
         return {TOKENTYPE::END, " "};
     }
 
+    // comments and divide
     if (ch == '/')
     {
+        if (file.peek() == '/')
+        {
+            while (file.get(ch) && ch != '\n')
+            {
+            }
+            return getnextToken(file);
+        }
         return {TOKENTYPE::DIVIDE, "/"};
     }
 

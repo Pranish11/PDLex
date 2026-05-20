@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 
 // to check if the file name has .pd
 bool pdExtension(const std::string& filename)
@@ -69,9 +70,13 @@ int main(int argc, char **argv)
 
         if (tokens[i].type == TOKENTYPE::IDENT)
         {
-            NODE tree = parse.parsecall(tokens, i);
-            Interpert.interpret(tree);
-            continue;
+            // Only a call expression if followed by '('
+            if (i + 1 < static_cast<int>(tokens.size()) && tokens[i + 1].type == TOKENTYPE::LPAREN)
+            {
+                NODE tree = parse.parsecall(tokens, i);
+                Interpert.interpret(tree);
+                continue;
+            }
         }
 
         i++;
