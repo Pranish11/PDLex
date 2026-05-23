@@ -113,6 +113,15 @@ NODE parser::parseprint(std::vector<Token> &tokens, int &i)
             i++;
             continue;
         }
+        else if (tokens[i].type == TOKENTYPE::STRING)
+        {
+            NODE arg;
+            arg.nodetype = NODETYPE::STRING_LITERAL;
+            arg.value = tokens[i].value;
+            node.child.push_back(arg);
+            i++;
+            continue;
+        }
         else if (tokens[i].type == TOKENTYPE::COMMA)
         {
             i++;
@@ -127,40 +136,34 @@ NODE parser::parseprint(std::vector<Token> &tokens, int &i)
             i++;
             continue;
         }
-        else if (tokens[i].type == TOKENTYPE::EXCLAMATION)
+        else
         {
             i++;
-            continue;
         }
-        else if (tokens[i].type == TOKENTYPE::UNDEFINED)
-        {
-            i++;
-            continue;
-        }
-        i++;
     }
 
-    if (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::RPAREN)
+    if (i < static_cast<int>(tokens.size()) && tokens[i].type == TOKENTYPE::RPAREN)
+    {
+        i++;
+    }
+    else
     {
         std::cerr << "Error! Expected ')'" << "\n";
     }
-    else
+
+    if (i < static_cast<int>(tokens.size()) && tokens[i].type == TOKENTYPE::SEMI)
     {
         i++;
     }
-
-    if (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::SEMI)
+    else
     {
         std::cerr << "Error! Expected ';' at the end" << "\n";
-    }
-    else
-    {
-        i++;
     }
 
     return node;
 }
 
+// parse variables
 NODE parser::parseVar(std::vector<Token> &tokens, int &i)
 {
     NODE node;
@@ -171,7 +174,7 @@ NODE parser::parseVar(std::vector<Token> &tokens, int &i)
         return node;
     }
 
-    if (tokens[i].type != TOKENTYPE::INT)
+    if (tokens[i].type != TOKENTYPE::INT && tokens[i].type != TOKENTYPE::DOUBLE)
     {
         return node;
     }
@@ -192,7 +195,22 @@ NODE parser::parseVar(std::vector<Token> &tokens, int &i)
         if (i < static_cast<int>(tokens.size()))
         {
             NODE arg;
-            arg.nodetype = NODETYPE::VARIABLE_DECLARATION;
+            if (tokens[i].type == TOKENTYPE::NUMBER)
+            {
+                arg.nodetype = NODETYPE::NUMBER_LITERAL;
+            }
+            else if (tokens[i].type == TOKENTYPE::IDENT)
+            {
+                arg.nodetype = NODETYPE::IDENT;
+            }
+            else if (tokens[i].type == TOKENTYPE::STRING)
+            {
+                arg.nodetype = NODETYPE::STRING_LITERAL;
+            }
+            else
+            {
+                arg.nodetype = NODETYPE::IDENT;
+            }
             arg.value = tokens[i].value;
             node.child.push_back(arg);
             i++;

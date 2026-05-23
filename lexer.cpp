@@ -62,6 +62,12 @@ void lexer::print(const Token &tok)
     case TOKENTYPE::EXCLAMATION:
         std::cout << "EXCLAMATION   : " << tok.value << "\n";
         break;
+    case TOKENTYPE::STRING:
+        std::cout << "STRING        : " << tok.value << "\n";
+        break;
+    case TOKENTYPE::PRINT:
+        std::cout << "PRINT         : " << tok.value << "\n";
+        break;
 
     default:
         std::cout << "UNKNOWN       : " << tok.value << "\n";
@@ -106,7 +112,47 @@ Token lexer::getnextToken(std::ifstream &file)
             return {TOKENTYPE::NOTEQUAL, "!="};
         }
         return {TOKENTYPE::EXCLAMATION, "!"};
-    }
+
+	    case '"':
+	    {
+	        std::string str;
+	        while (file.get(ch))
+	        {
+	            if (ch == '"')
+	            {
+	                break;
+	            }
+	            if (ch == '\\')
+	            {
+	                if (!file.get(ch))
+	                {
+	                    break;
+	                }
+	                switch (ch)
+	                {
+	                case 'n':
+	                    str.push_back('\n');
+	                    break;
+	                case 't':
+	                    str.push_back('\t');
+	                    break;
+	                case '"':
+	                    str.push_back('"');
+	                    break;
+	                case '\\':
+	                    str.push_back('\\');
+	                    break;
+	                default:
+	                    str.push_back(ch);
+	                    break;
+	                }
+	                continue;
+	            }
+	            str.push_back(ch);
+	        }
+	        return {TOKENTYPE::STRING, str};
+	    }
+	    }
 
     // for the comments and divide
     if (ch == '/')
@@ -157,6 +203,10 @@ Token lexer::getnextToken(std::ifstream &file)
         if (ident == "int")
         {
             return {TOKENTYPE::INT, ident};
+        }
+        else if (ident == "double")
+        {
+            return {TOKENTYPE::DOUBLE, ident};
         }
         else if (ident == "print")
         {

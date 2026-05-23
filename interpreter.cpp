@@ -7,33 +7,24 @@ void interpreter::interpret(const NODE &node)
         int value = 0;
         if (!node.child.empty())
         {
-            const std::string &raw = node.child[0].value;
-            try
+            const NODE &rhs = node.child[0];
+            if (rhs.nodetype == NODETYPE::NUMBER_LITERAL)
             {
-                size_t pos = 0;
-                int parsed = std::stoi(raw, &pos);
-                if (pos == raw.size())
-                {
-                    value = parsed;
-                }
-                else
-                {
-                    if (variables.find(raw) == variables.end())
-                    {
-                        std::cerr << "Runtime Error: undefined variable " << raw << "\n";
-                        return;
-                    }
-                    value = variables[raw];
-                }
+                value = std::stoi(rhs.value);
             }
-            catch (...)
+            else if (rhs.nodetype == NODETYPE::IDENT)
             {
-                if (variables.find(raw) == variables.end())
+                if (variables.find(rhs.value) == variables.end())
                 {
-                    std::cerr << "Runtime Error: undefined variable " << raw << "\n";
+                    std::cerr << "Runtime Error: undefined variable " << rhs.value << "\n";
                     return;
                 }
-                value = variables[raw];
+                value = variables[rhs.value];
+            }
+            else if (rhs.nodetype == NODETYPE::STRING_LITERAL)
+            {
+                std::cerr << "Runtime Error: cannot assign string to int " << node.value << "\n";
+                return;
             }
         }
 
@@ -54,6 +45,14 @@ void interpreter::interpret(const NODE &node)
                     return;
                 }
                 std::cout << variables[arg.value];
+            }
+            else if (arg.nodetype == NODETYPE::STRING_LITERAL)
+            {
+                std::cout << arg.value;
+            }
+            else if (arg.nodetype == NODETYPE::NUMBER_LITERAL)
+            {
+                std::cout << arg.value;
             }
             else
             {
