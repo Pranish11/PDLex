@@ -1,1 +1,2 @@
-# This is a simple interperter created using cpp. It interprets the .pd files
+# PDLex
+This project started as a simple lexer and i got carried away and added more shit than i meant to 

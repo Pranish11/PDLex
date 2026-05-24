@@ -106,6 +106,49 @@ Token lexer::getnextToken(std::ifstream &file)
             return {TOKENTYPE::NOTEQUAL, "!="};
         }
         return {TOKENTYPE::EXCLAMATION, "!"};
+<<<<<<< Updated upstream
+=======
+
+    case '"':
+    {
+        std::string str;
+        while (file.get(ch))
+        {
+            if (ch == '"')
+            {
+                break;
+            }
+            if (ch == '\\')
+            {
+                if (!file.get(ch))
+                {
+                    break;
+                }
+                switch (ch)
+                {
+                case 'n':
+                    str.push_back('\n');
+                    break;
+                case 't':
+                    str.push_back('\t');
+                    break;
+                case '"':
+                    str.push_back('"');
+                    break;
+                case '\\':
+                    str.push_back('\\');
+                    break;
+                default:
+                    str.push_back(ch);
+                    break;
+                }
+                continue;
+            }
+            str.push_back(ch);
+        }
+        return {TOKENTYPE::STRING, str};
+    }
+>>>>>>> Stashed changes
     }
 
     // for the comments and divide
@@ -175,6 +218,16 @@ Token lexer::getnextToken(std::ifstream &file)
         while (file.get(ch) && std::isdigit(static_cast<unsigned char>(ch)))
         {
             num += ch;
+        }
+
+        // Handle decimal point
+        if (ch == '.' && file.peek() != EOF)
+        {
+            num += ch;
+            while (file.get(ch) && std::isdigit(static_cast<unsigned char>(ch)))
+            {
+                num += ch;
+            }
         }
 
         if (!file.eof())

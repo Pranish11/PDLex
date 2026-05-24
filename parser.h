@@ -9,6 +9,11 @@ enum class NODETYPE
 {
     CALL_EXPR,
     NUMBER_LITERAL,
+<<<<<<< Updated upstream
+=======
+    STRING_LITERAL,
+    DOUBLE_LITERAL,
+>>>>>>> Stashed changes
     IDENT,
     PRINT_STATEMENT
 };

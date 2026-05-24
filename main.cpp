@@ -61,6 +61,16 @@ int main(int argc, char **argv)
     // for multile exection
     while (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::END)
     {
+<<<<<<< Updated upstream
+=======
+        if (tokens[i].type == TOKENTYPE::INT || tokens[i].type == TOKENTYPE::DOUBLE)
+        {
+            NODE tree = parse.parseVar(tokens, i);
+            Interpert.interpret(tree);
+            continue;
+        }
+
+>>>>>>> Stashed changes
         if (tokens[i].type == TOKENTYPE::PRINT)
         {
             NODE tree = parse.parseprint(tokens, i);

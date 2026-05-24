@@ -140,7 +140,73 @@ NODE parser::parseprint(std::vector<Token> &tokens, int &i)
     }
     else
     {
+<<<<<<< Updated upstream
         i++;
+=======
+        std::cerr << "Error! Expected ';' at the end" << "\n";
+    }
+
+    return node;
+}
+
+// parse variables
+NODE parser::parseVar(std::vector<Token> &tokens, int &i)
+{
+    NODE node;
+    node.nodetype = NODETYPE::VARIABLE_DECLARATION;
+
+    if (i >= static_cast<int>(tokens.size()))
+    {
+        return node;
+    }
+
+    if (tokens[i].type != TOKENTYPE::INT && tokens[i].type != TOKENTYPE::DOUBLE)
+    {
+        return node;
+    }
+
+    i++;
+
+    if (i >= static_cast<int>(tokens.size()) || tokens[i].type != TOKENTYPE::IDENT)
+    {
+        std::cerr << "ERROR! Need to declare an variable" << "\n";
+        return node;
+    }
+    node.value = tokens[i].value;
+    i++;
+
+    if (static_cast<int>(tokens.size()) && tokens[i].type == TOKENTYPE::EQUALSTO)
+    {
+        i++;
+
+        if (i < static_cast<int>(tokens.size()))
+        {
+            NODE arg;
+            if (tokens[i].type == TOKENTYPE::NUMBER)
+            {
+                arg.nodetype = NODETYPE::NUMBER_LITERAL;
+            }
+            else if (tokens[i].type == TOKENTYPE::IDENT)
+            {
+                arg.nodetype = NODETYPE::IDENT;
+            }
+            else if (tokens[i].type == TOKENTYPE::STRING)
+            {
+                arg.nodetype = NODETYPE::STRING_LITERAL;
+            }
+            else if (tokens[i].type == TOKENTYPE::DOUBLE)
+            {
+                arg.nodetype = NODETYPE::DOUBLE_LITERAL;
+            }
+            else
+            {
+                arg.nodetype = NODETYPE::IDENT;
+            }
+            arg.value = tokens[i].value;
+            node.child.push_back(arg);
+            i++;
+        }
+>>>>>>> Stashed changes
     }
 
     if (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::SEMI)

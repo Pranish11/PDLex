@@ -1,6 +1,19 @@
-// This is a comment
+
+// this is a single line comment
 /*
-    This is a multi line comment
+this is a multi line comment
+hi
 */
+<<<<<<< Updated upstream
 print (hello,world!);
 print (cutie);
+=======
+int x = 10;
+int y = 20;
+double z = 40.2;
+print (x);
+print (y);
+print (z);
+
+print("Hello,World!");
+>>>>>>> Stashed changes
