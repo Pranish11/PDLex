@@ -4,8 +4,6 @@ using Value = std::variant<std::string, int, double>;
 
 void interpreter::interpret(const NODE &node)
 {
-<<<<<<< Updated upstream
-=======
     if (node.nodetype == NODETYPE::VARIABLE_DECLARATION)
     {
         Value value = 0;
@@ -47,14 +45,10 @@ void interpreter::interpret(const NODE &node)
         return;
     }
 
->>>>>>> Stashed changes
     if (node.nodetype == NODETYPE::PRINT_STATEMENT)
     {
         for (size_t i = 0; i < node.child.size(); i++)
         {
-<<<<<<< Updated upstream
-            std::cout << node.child[i].value;
-=======
             const NODE &arg = node.child[i];
             if (arg.nodetype == NODETYPE::IDENT)
             {
@@ -78,7 +72,6 @@ void interpreter::interpret(const NODE &node)
             {
                 std::cout << arg.value;
             }
->>>>>>> Stashed changes
             if (i + 1 < node.child.size())
                 std::cout << " ";
         }

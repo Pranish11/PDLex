@@ -126,6 +126,15 @@ NODE parser::parseprint(std::vector<Token> &tokens, int &i)
             i++;
             continue;
         }
+        else if (tokens[i].type == TOKENTYPE::STRING)
+        {
+            NODE arg;
+            arg.nodetype = NODETYPE::STRING_LITERAL;
+            arg.value = tokens[i].value;
+            node.child.push_back(arg);
+            i++;
+            continue;
+        }
         else if (tokens[i].type == TOKENTYPE::EXCLAMATION)
         {
             i++;
@@ -140,10 +149,16 @@ NODE parser::parseprint(std::vector<Token> &tokens, int &i)
     }
     else
     {
-<<<<<<< Updated upstream
         i++;
-=======
+    }
+
+    if (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::SEMI)
+    {
         std::cerr << "Error! Expected ';' at the end" << "\n";
+    }
+    else
+    {
+        i++;
     }
 
     return node;
@@ -206,7 +221,6 @@ NODE parser::parseVar(std::vector<Token> &tokens, int &i)
             node.child.push_back(arg);
             i++;
         }
->>>>>>> Stashed changes
     }
 
     if (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::SEMI)

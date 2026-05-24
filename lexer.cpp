@@ -106,8 +106,6 @@ Token lexer::getnextToken(std::ifstream &file)
             return {TOKENTYPE::NOTEQUAL, "!="};
         }
         return {TOKENTYPE::EXCLAMATION, "!"};
-<<<<<<< Updated upstream
-=======
 
     case '"':
     {
@@ -148,7 +146,6 @@ Token lexer::getnextToken(std::ifstream &file)
         }
         return {TOKENTYPE::STRING, str};
     }
->>>>>>> Stashed changes
     }
 
     // for the comments and divide
@@ -200,6 +197,10 @@ Token lexer::getnextToken(std::ifstream &file)
         if (ident == "int")
         {
             return {TOKENTYPE::INT, ident};
+        }
+        if (ident == "double")
+        {
+            return {TOKENTYPE::DOUBLE, ident};
         }
 
         if (ident == "print")

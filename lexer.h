@@ -23,7 +23,9 @@ enum class TOKENTYPE
     EXCLAMATION,
 
     INT,
+    DOUBLE,
     PRINT,
+    STRING,
 
     END,
     UNDEFINED

@@ -9,13 +9,11 @@ enum class NODETYPE
 {
     CALL_EXPR,
     NUMBER_LITERAL,
-<<<<<<< Updated upstream
-=======
     STRING_LITERAL,
     DOUBLE_LITERAL,
->>>>>>> Stashed changes
     IDENT,
-    PRINT_STATEMENT
+    PRINT_STATEMENT,
+    VARIABLE_DECLARATION
 };
 
 struct NODE
@@ -30,4 +28,5 @@ class parser
 public:
     NODE parsecall(std::vector<Token> &tokens, int &i);
     NODE parseprint(std::vector<Token> &tokens, int &i);
+    NODE parseVar(std::vector<Token> &tokens, int &i);
 };
