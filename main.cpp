@@ -7,16 +7,12 @@
 #include <vector>
 #include <string>
 
-// to check if the file name has .pd
-bool pdExtension(const std::string& filename)
+bool pdExtension(const std::string &filename)
 {
-    if(filename.size() < 3) 
-    {
+    if (filename.size() < 3)
         return false;
-    }
-    return filename.substr(filename.size() -3 ) == ".pd";
+    return filename.substr(filename.size() - 3) == ".pd";
 }
-
 
 int main(int argc, char **argv)
 {
@@ -30,16 +26,14 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::ifstream file(argv[1]);
-
     std::string filename = argv[1];
-
-    if(!pdExtension(filename))
+    if (!pdExtension(filename))
     {
-        std::cerr << "Error! .pd files are only supported" << "\n";
+        std::cerr << "Error! Only .pd files are supported\n";
         return 1;
     }
 
+    std::ifstream file(argv[1]);
     if (!file.is_open())
     {
         std::cerr << "Could not open file: " << argv[1] << "\n";
@@ -52,22 +46,23 @@ int main(int argc, char **argv)
     {
         tok = Lexer.getnextToken(file);
         tokens.push_back(tok);
-        // Lexer.print(tok);
-
     } while (tok.type != TOKENTYPE::END);
 
     int i = 0;
-
-    // for multile exection
     while (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::END)
     {
-        if (tokens[i].type == TOKENTYPE::INT || tokens[i].type == TOKENTYPE::DOUBLE || tokens[i].type == TOKENTYPE::STRING || tokens[i].type == TOKENTYPE::BOOLEAN)
+        // variable declaration:  int x = 10;
+        if (tokens[i].type == TOKENTYPE::INT ||
+            tokens[i].type == TOKENTYPE::DOUBLE ||
+            tokens[i].type == TOKENTYPE::STRING ||
+            tokens[i].type == TOKENTYPE::BOOLEAN)
         {
             NODE tree = ast.parseVar(tokens, i);
             Interpert.interpret(tree);
             continue;
         }
 
+        // print statement:  print(x);
         if (tokens[i].type == TOKENTYPE::PRINT)
         {
             NODE tree = ast.parseprint(tokens, i);
@@ -75,10 +70,21 @@ int main(int argc, char **argv)
             continue;
         }
 
+        // ident — reassignment or function call
         if (tokens[i].type == TOKENTYPE::IDENT)
         {
-            // Only a call expression if followed by '('
-            if (i + 1 < static_cast<int>(tokens.size()) && tokens[i + 1].type == TOKENTYPE::LPAREN)
+            // reassignment:  a = 20;
+            if (i + 1 < static_cast<int>(tokens.size()) &&
+                tokens[i + 1].type == TOKENTYPE::EQUALSTO)
+            {
+                NODE tree = ast.parseReassign(tokens, i);
+                Interpert.interpret(tree);
+                continue;
+            }
+
+            // function call:  myFunc(x);
+            if (i + 1 < static_cast<int>(tokens.size()) &&
+                tokens[i + 1].type == TOKENTYPE::LPAREN)
             {
                 NODE tree = ast.parsecall(tokens, i);
                 Interpert.interpret(tree);
@@ -86,7 +92,10 @@ int main(int argc, char **argv)
             }
         }
 
+        // unknown token
+        std::cerr << "Warning: unexpected token '" << tokens[i].value << "\n";
         i++;
     }
+
     return 0;
 }

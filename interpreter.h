@@ -14,4 +14,5 @@ public:
 
 private:
     std::map<std::string, std::variant<std::string, int, double, bool>> variables;
+    int evalexpr(const NODE &node);
 };

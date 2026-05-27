@@ -14,6 +14,7 @@ enum class NODETYPE
     DOUBLE_LITERAL,
     BOOLEAN_LITERAL,
     IDENT,
+    BINARY_OP,
     PRINT_STATEMENT,
     VARIABLE_DECLARATION
 };
@@ -31,4 +32,7 @@ public:
     NODE parsecall(std::vector<Token> &tokens, int &i);
     NODE parseprint(std::vector<Token> &tokens, int &i);
     NODE parseVar(std::vector<Token> &tokens, int &i);
+    NODE parseExpr(std::vector<Token> &tokens, int &i);
+    NODE parsePrimary(std::vector<Token> &tokens, int &i);
+    NODE parseReassign(std::vector<Token> &tokens, int &i);
 };

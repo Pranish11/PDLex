@@ -198,6 +198,7 @@ NODE AST::parseVar(std::vector<Token> &tokens, int &i)
         return node;
     }
 
+    std::string declaredType = tokens[i].value;
     i++;
 
     if (i >= static_cast<int>(tokens.size()) || tokens[i].type != TOKENTYPE::IDENT)
@@ -212,47 +213,112 @@ NODE AST::parseVar(std::vector<Token> &tokens, int &i)
     {
         i++;
 
-        if (i < static_cast<int>(tokens.size()))
-        {
-            // std::cerr << "DEBUGER parseVar: token type=" << (int)tokens[i].type << " value=" << tokens[i].value << "\n";
-            NODE arg;
-            if (tokens[i].type == TOKENTYPE::NUMBER)
-            {
-                arg.nodetype = NODETYPE::NUMBER_LITERAL;
-            }
-            else if (tokens[i].type == TOKENTYPE::IDENT)
-            {
-                arg.nodetype = NODETYPE::IDENT;
-            }
-            else if (tokens[i].type == TOKENTYPE::STRING_LITERAL)
-            {
-                arg.nodetype = NODETYPE::STRING_LITERAL;
-            }
-            else if (tokens[i].type == TOKENTYPE::DOUBLE)
-            {
-                arg.nodetype = NODETYPE::DOUBLE_LITERAL;
-            }
-            else if (tokens[i].type == TOKENTYPE::BOOL_LITERAL)
-            {
-                arg.nodetype = NODETYPE::BOOLEAN_LITERAL;
-            }
-            else
-            {
-                arg.nodetype = NODETYPE::IDENT;
-            }
-            arg.value = tokens[i].value;
-            node.child.push_back(arg);
-            i++;
-        }
+        NODE expr = parseExpr(tokens, i);
+        node.child.push_back(expr);
     }
-
     if (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::SEMI)
     {
-        std::cerr << "Error! Expected ';' at the end" << "\n";
+        std::cerr << "Error! Expected ';' at the end\n";
     }
     else
     {
+        i++; // skip ';'
+    }
+
+    return node;
+}
+
+NODE AST::parsePrimary(std::vector<Token> &tokens, int &i)
+{
+    NODE node;
+
+    if (tokens[i].type == TOKENTYPE::NUMBER)
+    {
+        node.nodetype = NODETYPE::NUMBER_LITERAL;
+        node.value = tokens[i].value;
         i++;
+        return node;
+    }
+    else if (tokens[i].type == TOKENTYPE::STRING_LITERAL)
+    {
+        node.nodetype = NODETYPE::STRING_LITERAL;
+        node.value = tokens[i].value;
+        i++;
+        return node;
+    }
+    else if (tokens[i].type == TOKENTYPE::BOOL_LITERAL)
+    {
+        node.nodetype = NODETYPE::BOOLEAN_LITERAL;
+        node.value = tokens[i].value;
+        i++;
+        return node;
+    }
+    else if (tokens[i].type == TOKENTYPE::IDENT)
+    {
+        node.nodetype = NODETYPE::IDENT;
+        node.value = tokens[i].value;
+        i++;
+        return node;
+    }
+
+    return node;
+}
+
+NODE AST::parseExpr(std::vector<Token> &tokens, int &i)
+{
+    NODE left = parsePrimary(tokens, i); // the left side
+
+    while (i < static_cast<int>(tokens.size()) &&
+           (tokens[i].type == TOKENTYPE::PLUS || tokens[i].type == TOKENTYPE::MINUS || tokens[i].type == TOKENTYPE::MULTIPLY || tokens[i].type == TOKENTYPE::DIVIDE))
+    {
+        std::string op = tokens[i].value;
+        i++;
+
+        NODE right = parsePrimary(tokens, i); // get the right side
+
+        NODE expr;
+        expr.nodetype = NODETYPE::BINARY_OP;
+        expr.value = op;
+        expr.child.push_back(left);  // the left side
+        expr.child.push_back(right); // the right side in the tree
+
+        // for the cgain
+        left = expr;
+    }
+    return left;
+}
+
+NODE AST::parseReassign(std::vector<Token> &tokens, int &i)
+{
+    NODE node;
+    node.nodetype = NODETYPE::VARIABLE_DECLARATION; // reuse the  same node type
+
+    if (i >= static_cast<int>(tokens.size()))
+        return node;
+
+    // grab variables name
+    node.value = tokens[i].value;
+    i++; // skip the IDENT
+
+    // skip '='
+    if (i >= static_cast<int>(tokens.size()) || tokens[i].type != TOKENTYPE::EQUALSTO)
+    {
+        std::cerr << "Error! Expected '=' after variable name " << "\n";
+        return node;
+    }
+    i++; // skip '='
+
+    NODE expr = parseExpr(tokens, i);
+    node.child.push_back(expr);
+
+    // expect a ';'
+    if (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::SEMI)
+    {
+        std::cerr << "Error! Expected ';'" << "\n ";
+    }
+    else
+    {
+        i++; // skip ';'
     }
 
     return node;

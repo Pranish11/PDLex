@@ -1,6 +1,46 @@
 #include "interpreter.h"
 
+#include <type_traits>
+
 using Value = std::variant<std::string, int, double, bool>;
+
+// This code below is written by AI
+static int to_int(const Value &value)
+{
+    return std::visit(
+        [](const auto &v) -> int
+        {
+            using T = std::decay_t<decltype(v)>;
+            if constexpr (std::is_same_v<T, int>)
+            {
+                return v;
+            }
+            else if constexpr (std::is_same_v<T, double>)
+            {
+                return static_cast<int>(v);
+            }
+            else if constexpr (std::is_same_v<T, bool>)
+            {
+                return v ? 1 : 0;
+            }
+            else if constexpr (std::is_same_v<T, std::string>)
+            {
+                try
+                {
+                    return std::stoi(v);
+                }
+                catch (...)
+                {
+                    return 0;
+                }
+            }
+            else
+            {
+                return 0;
+            }
+        },
+        value);
+}
 
 void interpreter::interpret(const NODE &node)
 {
@@ -25,6 +65,10 @@ void interpreter::interpret(const NODE &node)
             {
                 value = std::stod(rhs.value);
             }
+            else if (rhs.nodetype == NODETYPE::BINARY_OP)
+            {
+                value = evalexpr(rhs);
+            }
             else if (rhs.nodetype == NODETYPE::IDENT)
             {
                 if (variables.find(rhs.value) == variables.end())
@@ -37,7 +81,7 @@ void interpreter::interpret(const NODE &node)
             else if (rhs.nodetype == NODETYPE::STRING_LITERAL)
             {
                 // std::cerr << "Runtime Error: cannot assign string to int " << node.value << "\n";
-                value  = rhs.value;
+                value = rhs.value;
             }
             else if (rhs.nodetype == NODETYPE::BOOLEAN_LITERAL)
             {
@@ -81,8 +125,63 @@ void interpreter::interpret(const NODE &node)
                 std::cout << arg.value;
             }
             if (i + 1 < node.child.size())
+            {
                 std::cout << " ";
+            }
         }
         std::cout << "\n";
+    }
+}
+
+int interpreter::evalexpr(const NODE &node)
+{
+    switch (node.nodetype)
+    {
+    case NODETYPE::NUMBER_LITERAL:
+        return std::stoi(node.value);
+
+    case NODETYPE::IDENT:
+    {
+        if (variables.find(node.value) == variables.end())
+        {
+            std::cerr << "Runtime Error! undefined variable '" << node.value << "'\n";
+            return 0; // safely fallback, don't proceed to stoi
+        }
+        return to_int(variables[node.value]);
+    }
+
+    case NODETYPE::BINARY_OP:
+    {
+        int left = evalexpr(node.child[0]);
+        int right = evalexpr(node.child[1]);
+
+        if (node.value == "+")
+        {
+            return left + right;
+        }
+        if (node.value == "-")
+        {
+            return left - right;
+        }
+        if (node.value == "*")
+        {
+            return left * right;
+        }
+        if (node.value == "/")
+        {
+            if (right == 0)
+            {
+                std::cerr << "Runtime Error! division by zero\n";
+                return 0;
+            }
+            return left / right;
+        }
+        std::cerr << "Runtime Error! unknown operator '" << node.value << "'\n";
+        return 0;
+    }
+
+    default:
+        std::cerr << "Runtime Error! unexpected node in expression\n";
+        return 0;
     }
 }

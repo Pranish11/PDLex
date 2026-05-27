@@ -9,14 +9,22 @@
 int x = 10;
 int y = 20;
 double z = 40.2;
-string Name = "hi";
+string Name = "Pranish";
+string lastname = "Pookie";
 bool isgood = true;
 
+int sum = 10 + 10;
+int add = x + y  + 10.2;
+int subraction =  x - y;
 
 print (x);
 print (y);
 print (z);
-print (Name);
+print (Name lastname);
+print ("hi," Name);
+print ("The sum is : " sum);
+print("The sum is : " add);
+print ("Minus : " subraction);
 print (isgood);         // prints 1 as true and 0 and false
 
 
