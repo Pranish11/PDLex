@@ -2,6 +2,8 @@
 
 PDLex is a small C++ prototype for a simple `.pd` language. It started as a lexer and grew into a tiny parser/interpreter that can read a file, build a lightweight AST, and execute a few basic statements.
 
+This repository is licensed under the Apache License 2.0. See [`LICENSE`](LICENSE) for the full text.
+
 ## What It Can Do
 
 - Tokenize identifiers, numbers, strings, booleans, operators, and punctuation
