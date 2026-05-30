@@ -38,10 +38,10 @@ print(ok);
 
 ## Build
 
-Use any C++17-compatible compiler. With `g++`, build it like this:
+Use any C++17-compatible compiler. With `cmake`, build it like this:
 
 ```bash
-g++ -std=c++17 main.cpp lexer.cpp AST.cpp interpreter.cpp -o ppi
+cmake --build .
 ```
 
 If you prefer a different output name, change `-o ppi` to whatever you want.
