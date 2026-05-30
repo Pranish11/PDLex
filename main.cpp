@@ -14,6 +14,57 @@ bool pdExtension(const std::string &filename)
     return filename.substr(filename.size() - 3) == ".pd";
 }
 
+void processTokens(const std::vector<Token>& tokens, AST& ast, interpreter& interp)
+{
+    int i = 0;
+    while (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::END)
+    {
+        if (tokens[i].type == TOKENTYPE::INT ||
+            tokens[i].type == TOKENTYPE::DOUBLE ||
+            tokens[i].type == TOKENTYPE::STRING ||
+            tokens[i].type == TOKENTYPE::BOOLEAN)
+        {
+            NODE tree = ast.parseVar(tokens, i);
+            interp.interpret(tree);
+        }
+        else if (tokens[i].type == TOKENTYPE::PRINT)
+        {
+            NODE tree = ast.parseprint(tokens, i);
+            interp.interpret(tree);
+        }
+        else if (tokens[i].type == TOKENTYPE::INPUT)
+        {
+            NODE tree = ast.parseInput(tokens, i);
+            interp.interpret(tree);
+        }
+        else if (tokens[i].type == TOKENTYPE::IDENT)
+        {
+            if (i + 1 < static_cast<int>(tokens.size()) &&
+                tokens[i + 1].type == TOKENTYPE::EQUALSTO)
+            {
+                NODE tree = ast.parseReassign(tokens, i);
+                interp.interpret(tree);
+            }
+            else if (i + 1 < static_cast<int>(tokens.size()) &&
+                     tokens[i + 1].type == TOKENTYPE::LPAREN)
+            {
+                NODE tree = ast.parsecall(tokens, i);
+                interp.interpret(tree);
+            }
+            else
+            {
+                std::cerr << "Warning: unexpected token '" << tokens[i].value << "' at line " << tokens[i].line << "\n";
+                i++;
+            }
+        }
+        else
+        {
+            std::cerr << "Warning: unexpected token '" << tokens[i].value << "' at line " << tokens[i].line << "\n";
+            i++;
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     lexer Lexer;
@@ -40,63 +91,20 @@ int main(int argc, char **argv)
         return 1;
     }
 
+
+    ast.setFilename(filename);
+
     Token tok;
     std::vector<Token> tokens;
     int line = 1;
+
     do
     {
         tok = Lexer.getnextToken(file, line);
         tokens.push_back(tok);
     } while (tok.type != TOKENTYPE::END);
 
-    int i = 0;
-    while (i < static_cast<int>(tokens.size()) && tokens[i].type != TOKENTYPE::END)
-    {
-        // variable declaration:  int x = 10;
-        if (tokens[i].type == TOKENTYPE::INT ||
-            tokens[i].type == TOKENTYPE::DOUBLE ||
-            tokens[i].type == TOKENTYPE::STRING ||
-            tokens[i].type == TOKENTYPE::BOOLEAN)
-        {
-            NODE tree = ast.parseVar(tokens, i);
-            Interpert.interpret(tree);
-            continue;
-        }
-
-        // print statement:  print(x);
-        if (tokens[i].type == TOKENTYPE::PRINT)
-        {
-            NODE tree = ast.parseprint(tokens, i);
-            Interpert.interpret(tree);
-            continue;
-        }
-
-        // ident — reassignment or function call
-        if (tokens[i].type == TOKENTYPE::IDENT)
-        {
-            // reassignment:  a = 20;
-            if (i + 1 < static_cast<int>(tokens.size()) &&
-                tokens[i + 1].type == TOKENTYPE::EQUALSTO)
-            {
-                NODE tree = ast.parseReassign(tokens, i);
-                Interpert.interpret(tree);
-                continue;
-            }
-
-            // function call:  myFunc(x);
-            if (i + 1 < static_cast<int>(tokens.size()) &&
-                tokens[i + 1].type == TOKENTYPE::LPAREN)
-            {
-                NODE tree = ast.parsecall(tokens, i);
-                Interpert.interpret(tree);
-                continue;
-            }
-        }
-
-        // unknown token
-        std::cerr << "Warning: unexpected token '" << tokens[i].value << "\n";
-        i++;
-    }
+    processTokens(tokens, ast, Interpert);
 
     return 0;
 }
