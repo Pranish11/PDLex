@@ -42,10 +42,10 @@ print(ok);
 
 ## Build
 
-Use any C++17-compatible compiler. Use Cmake to build the project
+Use any C++17-compatible compiler. With `cmake`, build it like this:
 
 ```bash
-cmake --build
+cmake --build .
 ```
 
 If you prefer a different output name, change `-o ppi` to whatever you want in the CmakeLists.txt.
