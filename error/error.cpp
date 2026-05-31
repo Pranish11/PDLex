@@ -3,7 +3,7 @@
 
 #include "error.h"
 
-std::string errors::getLineFromFile(const std::string& filename, int lineNum)
+std::string errors::getLineFromFile(const std::string& filename, const int lineNum)
 {
 	std::ifstream file(filename);
 	if (!file.is_open())
@@ -26,9 +26,9 @@ std::string errors::getLineFromFile(const std::string& filename, int lineNum)
 	return "";
 }
 
-void errors::displayErrorWithLine(const std::string& msg, int line, const std::string& filename)
+void errors::displayErrorWithLine(const std::string& msg, const int line, const std::string& filename)
 {
-	std::string errorLine = getLineFromFile(filename, line);
+	const std::string errorLine = getLineFromFile(filename, line);
 	std::cerr << msg << " at line " << line << "\n";
 
 	if (!errorLine.empty())
@@ -44,24 +44,24 @@ void errors::displayErrorWithLine(const std::string& msg, int line, const std::s
 	std::exit(1);
 }
 
-void errors::runtimeError(const std::string& msg, int line)
+void errors::runtimeError(const std::string& msg, const int line)
 {
 	std::cerr << msg << " at line " << line << "\n";
 	std::exit(1);
 }
 
-void errors::runtimeError(const std::string& msg, int line, const std::string& filename)
+void errors::runtimeError(const std::string& msg, const int line, const std::string& filename)
 {
 	displayErrorWithLine(msg, line, filename);
 }
 
-void errors::syntaxError(const std::string& msg, int line)
+void errors::syntaxError(const std::string& msg, const int line)
 {
 	std::cerr << msg << " at line " << line << "\n";
 	std::exit(1);
 }
 
-void errors::syntaxError(const std::string& msg, int line, const std::string& filename)
+void errors::syntaxError(const std::string& msg, const int line, const std::string& filename)
 {
 	displayErrorWithLine(msg, line, filename);
 }

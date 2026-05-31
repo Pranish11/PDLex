@@ -201,7 +201,7 @@ NODE AST::parseVar(const std::vector<Token>& tokens, int& i)
 		return node;
 	}
 
-	std::string declaredType = tokens[i].value;
+	const std::string declaredType = tokens[i].value;
 	node.line = tokens[i].line;
 	i++;
 
@@ -223,7 +223,7 @@ NODE AST::parseVar(const std::vector<Token>& tokens, int& i)
 	if (i < static_cast<int>(tokens.size()) && tokens[i].type == TOKENTYPE::EQUALSTO)
 	{
 		i++;
-		NODE expr = parseExpr(tokens, i);
+		const NODE expr = parseExpr(tokens, i);
 		node.child.push_back(expr);
 	}
 
@@ -335,8 +335,8 @@ NODE AST::parseExpr(const std::vector<Token>& tokens, int& i)
 	while (i < static_cast<int>(tokens.size()) &&
 		(tokens[i].type == TOKENTYPE::PLUS || tokens[i].type == TOKENTYPE::MINUS || tokens[i].type == TOKENTYPE::MULTIPLY || tokens[i].type == TOKENTYPE::DIVIDE || tokens[i].type == TOKENTYPE::PERCENTAGE))
 	{
-		std::string op = tokens[i].value;
-		int opLine = tokens[i].line;
+		const std::string op = tokens[i].value;
+		const int opLine = tokens[i].line;
 		i++;
 
 		NODE right = parsePrimary(tokens, i); // get the right side
@@ -377,7 +377,7 @@ NODE AST::parseReassign(const std::vector<Token>& tokens, int& i)
 	}
 	i++; // skip '='
 
-	NODE expr = parseExpr(tokens, i);
+	const NODE expr = parseExpr(tokens, i);
 	node.child.push_back(expr);
 
 	// expect a ';'
@@ -411,7 +411,7 @@ NODE AST::parseInput(const std::vector<Token> &tokens, int &i)
 	i++; // skip '('
 
 	// Check what's inside: could be IDENT, STRING_LITERAL, or both
-	std::string variableName, prompt;
+	std::string variableName;
 
 	// First element: could be variable name OR prompt string
 	if (tokens[i].type == TOKENTYPE::IDENT)
@@ -424,7 +424,7 @@ NODE AST::parseInput(const std::vector<Token> &tokens, int &i)
 	else if (tokens[i].type == TOKENTYPE::STRING_LITERAL)
 	{
 		// input("prompt", variable_name); OR input("prompt");
-		prompt = tokens[i].value;
+		const std::string prompt = tokens[i].value;;
 		NODE promptNode;
 		promptNode.nodetype = NODETYPE::STRING_LITERAL;
 		promptNode.value = prompt;

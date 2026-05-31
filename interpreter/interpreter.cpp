@@ -125,33 +125,32 @@ static bool is_string(const Value &v)
 // Helper function to evaluate any node to a Value
 Value interpreter::evaluateNode(const NODE &node)
 {
-    if (node.nodetype == NODETYPE::IDENT)
+    switch (node.nodetype)
     {
-        if (!variables.contains(node.value))
-        {
-            errors::runtimeError("undefined variable '" + node.value + "'", node.line);
-            return 0;
-        }
-        return variables[node.value];
-    }
-    else if (node.nodetype == NODETYPE::NUMBER_LITERAL)
-    {
-        if (node.value.find('.') != std::string::npos) {
-            return std::stod(node.value);
-        }
-        return std::stoi(node.value);
-    }
-    else if (node.nodetype == NODETYPE::STRING_LITERAL)
-    {
-        return node.value;
-    }
-    else if (node.nodetype == NODETYPE::BINARY_OP)
-    {
-        return evalexpr(node);
-    }
-    else
-    {
-        return node.value;
+        case NODETYPE::IDENT:
+            if (!variables.contains(node.value))
+            {
+                errors::runtimeError(
+                    "undefined variable '" + node.value + "'",
+                    node.line
+                );
+                return 0;
+            }
+            return variables[node.value];
+
+        case NODETYPE::NUMBER_LITERAL:
+            return (node.value.find('.') != std::string::npos)
+                ? Value(std::stod(node.value))
+                : Value(std::stoi(node.value));
+
+        case NODETYPE::STRING_LITERAL:
+            return node.value;
+
+        case NODETYPE::BINARY_OP:
+            return evalexpr(node);
+
+        default:
+            return node.value;
     }
 }
 
@@ -192,9 +191,7 @@ void interpreter::interpret(const NODE &node)
         // if it will be at child[1] now (child[0] is the type)
         if (node.child.size() > 1)
         {
-            const NODE &rhs = node.child[1];
-
-            if (rhs.nodetype == NODETYPE::NUMBER_LITERAL)
+            if (const NODE &rhs = node.child[1]; rhs.nodetype == NODETYPE::NUMBER_LITERAL)
             {
                 if (rhs.value.find('.') != std::string::npos)
                 {
@@ -278,7 +275,7 @@ void interpreter::interpret(const NODE &node)
                        prompt);
         }
 
-        // IMPORTANT: Flush output so prompt appears before waiting for input
+        // This is IMPORTANT: Flush output so prompt appears before waiting for input
         std::cout.flush();
 
         // Read input from stdin
@@ -301,7 +298,7 @@ void interpreter::interpret(const NODE &node)
                 {
                     variables[node.value] = std::stoi(input);
                 }
-                catch (const std::exception &e)
+                catch (const std::exception&)
                 {
                     errors::runtimeError("cannot convert '" + input + "' to int", node.line);
                     return;
@@ -313,7 +310,7 @@ void interpreter::interpret(const NODE &node)
                 {
                     variables[node.value] = std::stod(input);
                 }
-                catch (const std::exception &e)
+                catch (const std::exception&)
                 {
                     errors::runtimeError("cannot convert '" + input + "' to double", node.line);
                     return;
@@ -344,7 +341,6 @@ void interpreter::interpret(const NODE &node)
     }
 }
 
-// FIX: evalexpr now returns Value instead of int, preserving types across the tree
 Value interpreter::evalexpr(const NODE &node)
 {
     switch (node.nodetype)
@@ -395,8 +391,8 @@ Value interpreter::evalexpr(const NODE &node)
 
     case NODETYPE::BINARY_OP:
     {
-        Value left  = evalexpr(node.child[0]);
-        Value right = evalexpr(node.child[1]);
+        const Value left  = evalexpr(node.child[0]);
+        const Value right = evalexpr(node.child[1]);
 
         // FIX: string + anything => string concatenation
         if (node.value == "+" && (is_string(left) || is_string(right)))
@@ -409,8 +405,8 @@ Value interpreter::evalexpr(const NODE &node)
         {
             try
             {
-                double l = to_double(left);
-                double r = to_double(right);
+                const double l = to_double(left);
+                const double r = to_double(right);
 
                 if (node.value == "+") return l + r;
                 if (node.value == "-") return l - r;
@@ -447,8 +443,8 @@ Value interpreter::evalexpr(const NODE &node)
         // integer arithmetic
         try
         {
-            int l = to_int(left);
-            int r = to_int(right);
+            const int l = to_int(left);
+            const int r = to_int(right);
 
             if (node.value == "+") return l + r;
             if (node.value == "-") return l - r;
